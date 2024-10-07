@@ -1,0 +1,36 @@
+{
+    "task4.1": {
+        "feature_type": "rg32Sobel16",
+        "feature_extractors": [
+            {
+                "extractor": "rgHistogram",
+                "region": "whole",
+                "config": {
+                    "bin_size": 32
+                }
+            },
+            {
+                "extractor": "sobelHistogram",
+                "region": "whole",
+                "config": {
+                    "bin_size": 16
+                }
+            }
+        ],
+        "metric": "SSD",
+        "target_image": "pic.0535.jpg",
+        "K": 4
+    },
+    "task4.2.1": {
+        "feature_type": "rgHistogram16",
+        "metric": "HistIntersection",
+        "target_image": "pic.0535.jpg",
+        "K": 4
+    },
+    "task4.2.2": {
+        "feature_type": "rgbHistogram8HorizontalSplit",
+        "metric": "HistIntersection",
+        "target_image": "pic.0535.jpg",
+        "K": 4
+    }
+}
