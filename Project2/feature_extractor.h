@@ -37,4 +37,13 @@ int rgbHistogram(const cv::Mat &m, const nlohmann::json &config,
 int sobelHistogram(const cv::Mat &m, const nlohmann::json &config,
                    std::vector<float> *feature);
 
+int lawsFilterHistogram(const cv::Mat &m, const nlohmann::json &config,
+                        std::vector<float> *feature);
+
+int gaborFilterHistogram(const cv::Mat &m, const nlohmann::json &config,
+                         std::vector<float> *feature);
+
+int fourierTransform(const cv::Mat &m, const nlohmann::json &config,
+                     std::vector<float> *feature);
+
 #endif

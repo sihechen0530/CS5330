@@ -12,6 +12,6 @@
         ],
         "metric": "SSD",
         "target_image": "pic.1016.jpg",
-        "K": 4
+        "K": 5
     }
 }

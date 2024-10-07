@@ -149,8 +149,7 @@ int VectorDatabase::updateFeature(const std::string &feature_type,
       continue;
     }
     const auto &realpath = directory_ + "/" + image_path;
-    if (0 != extract(realpath, config,
-                     &database_[feature_type][index])) {
+    if (0 != extract(realpath, config, &database_[feature_type][index])) {
       LOG_ERROR("failed to compute feature " << feature_type << " "
                                              << image_path);
       return -1;
@@ -201,15 +200,9 @@ int VectorDatabase::getTopKMatch(const std::string &feature_type,
                      return std::get<0>(lhs) < std::get<0>(rhs);
                    });
   // step 4: return matches
-  int count = 0;
-  for (const auto &[metric, index] : metric_values) {
-    // TODO: only keep matches but print out all score for debugging
-    if (count < k) {
-      matches->emplace_back(image_paths_.at(index));
-      ++count;
-    }
-    LOG_INFO("image score: " << image_paths_.at(index) << " " << std::fixed
-                             << metric);
+  for (auto iter = metric_values.begin(); iter != metric_values.begin() + k;
+       ++iter) {
+    matches->emplace_back(image_paths_.at(std::get<1>(*iter)));
   }
   return 0;
 }

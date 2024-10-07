@@ -1,0 +1,42 @@
+{
+    "task6.1": {
+        "feature_type": "fourier_default",
+        "feature_extractors": [
+            {
+                "extractor": "fourier",
+                "region": "whole",
+                "config": {
+                    "resize": 16
+                }
+            }
+        ],
+        "metric": "cosine",
+        "target_image": "pic.0535.jpg",
+        "K": 4
+    },
+    "task6.2": {
+        "feature_type": "gabor_default",
+        "feature_extractors": [
+            {
+                "extractor": "gabor",
+                "region": "whole",
+                "config": {
+                    "bin_size": 16,
+                    "orientations": [
+                        0.1,
+                        0.2,
+                        0.3
+                    ],
+                    "frequencies": [
+                        0,
+                        0.7853981633974483,
+                        1.5707963267948966
+                    ]
+                }
+            }
+        ],
+        "metric": "cosine",
+        "target_image": "pic.0535.jpg",
+        "K": 4
+    }
+}

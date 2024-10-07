@@ -16,4 +16,9 @@ float histogramIntersection(const std::vector<float> &v1,
 
 float cosine(const std::vector<float> &v1, const std::vector<float> &v2);
 
+float crossEntropy(const std::vector<float> &v1, const std::vector<float> &v2);
+
+float LInfinityDistance(const std::vector<float> &v1,
+                        const std::vector<float> &v2);
+
 #endif

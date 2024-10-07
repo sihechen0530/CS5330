@@ -28,7 +28,11 @@ const std::unordered_map<
     kFeatureExtractors = {{"roi", roi},
                           {"rgHistogram", rgHistogram},
                           {"rgbHistogram", rgbHistogram},
-                          {"sobelHistogram", sobelHistogram}};
+                          {"sobelHistogram", sobelHistogram},
+                          {"laws", lawsFilterHistogram},
+                          {"gabor", gaborFilterHistogram},
+                          {"fourier", fourierTransform}};
+
 const std::unordered_map<std::string, std::function<cv::Mat(const cv::Mat &)>>
     kSplitFuncs = {{"whole", getWholeImage},       {"upper", getUpperHalf},
                    {"lower", getLowerHalf},        {"left", getLeftHalf},
@@ -262,11 +266,13 @@ int sobelHistogram(const cv::Mat &m, const nlohmann::json &config,
               *angleHistRange = {angle_range};
   int histSize = kBinSize;
   cv::Mat hist;
-  cv::calcHist(&magnitude, 1, 0, cv::Mat(), hist, 1, &histSize, &magnitudeHistRange);
+  cv::calcHist(&magnitude, 1, 0, cv::Mat(), hist, 1, &histSize,
+               &magnitudeHistRange);
   cv::normalize(hist, hist, 0, 1, cv::NORM_MINMAX);
   feature->assign((float *)hist.data,
                   (float *)hist.data + hist.rows * hist.cols);
-  cv::calcHist(&magnitude, 1, 0, cv::Mat(), hist, 1, &histSize, &angleHistRange);
+  cv::calcHist(&magnitude, 1, 0, cv::Mat(), hist, 1, &histSize,
+               &angleHistRange);
   cv::normalize(hist, hist, 0, 1, cv::NORM_MINMAX);
   feature->insert(feature->end(), (float *)hist.data,
                   (float *)hist.data + hist.rows * hist.cols);
@@ -300,6 +306,132 @@ int sobelHistogram(const cv::Mat &m, const nlohmann::json &config,
   // for (auto &feat : *feature) {
   //   feat /= (m.rows * m.cols);
   // }
+  return 0;
+}
+
+int lawsFilterHistogram(const cv::Mat &m, const nlohmann::json &config,
+                        std::vector<float> *feature) {
+  int kBinSize = config["bin_size"];
+  float range[] = {0, 256};
+  const float *histRange = {range};
+  feature->clear();
+  feature->reserve(kBinSize * 5);
+
+  cv::Mat gray;
+  cv::cvtColor(m, gray, cv::COLOR_BGR2GRAY);
+  std::vector<cv::Mat> kernels = {
+      (cv::Mat_<float>(1, 5) << -1, -2, 0, 2, 1), // L5
+      (cv::Mat_<float>(1, 5) << -1, 0, 2, 0, -1), // E5
+      (cv::Mat_<float>(1, 5) << -1, 2, 0, -2, 1), // S5
+      (cv::Mat_<float>(1, 5) << 1, -4, 6, -4, 1), // R5
+      (cv::Mat_<float>(1, 5) << -1, 4, -6, 4, -1) // W5
+  };
+
+  for (const auto &kernel : kernels) {
+    cv::Mat response;
+    cv::filter2D(gray, response, CV_32F, kernel);
+    cv::Mat hist;
+    cv::calcHist(&response, 1, 0, cv::Mat(), hist, 1, &kBinSize, &histRange);
+    cv::normalize(hist, hist, 0, 1, cv::NORM_MINMAX);
+    feature->insert(feature->end(), (float *)hist.data,
+                    (float *)hist.data + hist.rows * hist.cols);
+  }
+  return 0;
+}
+
+int gaborFilterHistogram(const cv::Mat &m, const nlohmann::json &config,
+                         std::vector<float> *feature) {
+  int kBinSize = config["bin_size"];
+  float range[] = {0, 256};
+  const float *histRange = {range};
+  feature->clear();
+  feature->reserve(config["frequencies"].size() *
+                   config["orientations"].size() * kBinSize);
+
+  cv::Mat gray;
+  cv::cvtColor(m, gray, cv::COLOR_BGR2GRAY);
+
+  for (float frequency : config["frequencies"]) {
+    for (float orientation : config["orientations"]) {
+      cv::Mat kernel = cv::getGaborKernel(cv::Size(31, 31), 4.0, orientation,
+                                          frequency, 0.5, 0, CV_32F);
+      cv::Mat response;
+      cv::filter2D(gray, response, CV_32F, kernel);
+      cv::Mat hist;
+      cv::calcHist(&response, 1, 0, cv::Mat(), hist, 1, &kBinSize, &histRange);
+      cv::normalize(hist, hist, 0, 1, cv::NORM_MINMAX);
+      feature->insert(feature->end(), (float *)hist.data,
+                      (float *)hist.data + hist.rows * hist.cols);
+    }
+  }
+  return 0;
+}
+
+int fourierTransform(const cv::Mat &mat, const nlohmann::json &config,
+                     std::vector<float> *feature) {
+  int kResize = config["resize"];
+  cv::Mat gray;
+  cv::cvtColor(mat, gray, cv::COLOR_BGR2GRAY);
+
+  // Expand input image to optimal size
+  cv::Mat padded;
+  int m = cv::getOptimalDFTSize(gray.rows);
+  int n = cv::getOptimalDFTSize(gray.cols);
+  cv::copyMakeBorder(gray, padded, 0, m - gray.rows, 0, n - gray.cols,
+                     cv::BORDER_CONSTANT, cv::Scalar::all(0));
+
+  // Create a complex matrix to hold the DFT coefficients
+  cv::Mat planes[] = {cv::Mat_<float>(padded),
+                      cv::Mat::zeros(padded.size(), CV_32F)};
+  cv::Mat complexI;
+  cv::merge(planes, 2, complexI);
+
+  // Perform the DFT
+  cv::dft(complexI, complexI);
+
+  // Compute the magnitude of the DFT coefficients
+  cv::split(complexI, planes);
+  cv::magnitude(planes[0], planes[1], planes[0]);
+  cv::Mat magI = planes[0];
+
+  // Switch to logarithmic scale
+  magI += cv::Scalar::all(1);
+  cv::log(magI, magI);
+
+  // Crop the spectrum, if it has an odd number of rows or columns
+  magI = magI(cv::Rect(0, 0, magI.cols & -2, magI.rows & -2));
+
+  // Rearrange the quadrants of the Fourier image so that the origin is at the
+  // center
+  int cx = magI.cols / 2;
+  int cy = magI.rows / 2;
+
+  cv::Mat q0(magI, cv::Rect(0, 0, cx, cy));   // Top-Left
+  cv::Mat q1(magI, cv::Rect(cx, 0, cx, cy));  // Top-Right
+  cv::Mat q2(magI, cv::Rect(0, cy, cx, cy));  // Bottom-Left
+  cv::Mat q3(magI, cv::Rect(cx, cy, cx, cy)); // Bottom-Right
+
+  cv::Mat tmp;
+  q0.copyTo(tmp);
+  q3.copyTo(q0);
+  tmp.copyTo(q3);
+
+  q1.copyTo(tmp);
+  q2.copyTo(q1);
+  tmp.copyTo(q2);
+
+  // Normalize the magnitude image
+  cv::normalize(magI, magI, 0, 1, cv::NORM_MINMAX);
+
+  // Resize to 16x16
+  cv::Mat resizedMagI;
+  cv::resize(magI, resizedMagI, cv::Size(kResize, kResize));
+
+  feature->clear();
+  feature->assign((float *)resizedMagI.data,
+                  (float *)resizedMagI.data +
+                      resizedMagI.rows * resizedMagI.cols);
+
   return 0;
 }
 

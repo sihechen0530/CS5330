@@ -3,6 +3,7 @@
 #include <functional>
 #include <numeric>
 #include <string>
+#include <vector>
 
 #define CHECK_VECTOR_LENGTH(a, b)                                              \
   do {                                                                         \
@@ -18,7 +19,22 @@ const std::unordered_map<std::string,
                                              const std::vector<float> &)>>
     kMetricCalculators = {{"SSD", sumOfSquaredDifference},
                           {"HistIntersection", histogramIntersection},
-                          {"cosine", cosine}};
+                          {"cosine", cosine},
+                          {"crossEntropy", crossEntropy},
+                          {"LN", LInfinityDistance}};
+
+// util function
+std::vector<float> normalize(const std::vector<float> &v) {
+  float norm = std::sqrt(
+      std::accumulate(v.begin(), v.end(), 0.0f, [](float ret, const auto &ele) {
+        return ret + ele * ele;
+      }));
+  std::vector<float> normalizedVec(v.size());
+  for (size_t i = 0; i < v.size(); ++i) {
+    normalizedVec[i] = v[i] / norm;
+  }
+  return normalizedVec;
+};
 
 float sumOfSquaredDifference(const std::vector<float> &v1,
                              const std::vector<float> &v2) {
@@ -42,25 +58,39 @@ float histogramIntersection(const std::vector<float> &v1,
 }
 
 float cosine(const std::vector<float> &v1, const std::vector<float> &v2) {
-  auto normalize = [&](const std::vector<float> &v) {
-    float norm = std::sqrt(std::accumulate(
-        v.begin(), v.end(), 0.0f,
-        [](const auto &ele, float ret) { return ret + ele * ele; }));
-    std::vector<float> normalizedVec(v.size());
-    for (size_t i = 0; i < v.size(); ++i) {
-      normalizedVec[i] = v[i] / norm;
-    }
-    return normalizedVec;
-  };
-
   ASSERT_EQ(v1.size(), v2.size());
   std::vector<float> normVec1 = normalize(v1);
   std::vector<float> normVec2 = normalize(v2);
   float dotProduct = 0.0;
-  for (size_t i = 0; i < v1.size(); ++i) {
-    dotProduct += v1[i] * v2[i];
+  for (size_t i = 0; i < normVec1.size(); ++i) {
+    dotProduct += normVec1[i] * normVec2[i];
   }
   return 1 - dotProduct;
+}
+
+float crossEntropy(const std::vector<float> &v1, const std::vector<float> &v2) {
+  const float kEpsilon = 1e-12;
+  ASSERT_EQ(v1.size(), v2.size());
+  std::vector<float> normVec1 = normalize(v1);
+  std::vector<float> normVec2 = normalize(v2);
+  float cross_entropy = 0.0f;
+  for (size_t i = 0; i < normVec1.size(); ++i) {
+    cross_entropy +=
+        normVec1[i] * std::log(std::clamp(normVec2[i], kEpsilon, 1 - kEpsilon));
+  }
+  return -cross_entropy / normVec1.size();
+}
+
+float LInfinityDistance(const std::vector<float> &v1,
+                        const std::vector<float> &v2) {
+  ASSERT_EQ(v1.size(), v2.size());
+  std::vector<float> normVec1 = normalize(v1);
+  std::vector<float> normVec2 = normalize(v2);
+  float result = 0.0f;
+  for (size_t i = 0; i < normVec1.size(); ++i) {
+    result += std::max(normVec1[i], normVec2[i]);
+  }
+  return result;
 }
 
 float metric(const std::string &metric_name, const std::vector<float> &v1,
