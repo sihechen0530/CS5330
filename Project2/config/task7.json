@@ -1,0 +1,42 @@
+{
+    "task7.1": {
+        "feature_type": "rgHistogram16",
+        "metric": "cosine",
+        "target_image": "pic.0016.jpg",
+        "K": 6
+    },
+    "task7.2": {
+        "feature_type": "rgHistogram_rgbHistogram",
+        "feature_extractors": [
+            {
+                "extractor": "rgHistogram",
+                "region": "whole",
+                "config": {
+                    "bin_size": 16
+                }
+            },
+            {
+                "extractor": "rgbHistogram",
+                "region": "whole",
+                "config": {
+                    "bin_size": 16
+                }
+            }
+        ],
+        "metric": "cosine",
+        "target_image": "pic.0016.jpg",
+        "K": 6
+    },
+    "task7.3": {
+        "feature_type": "rgHistogram_rgbHistogram",
+        "metric": "cosine",
+        "target_image": "pic.0016.jpg",
+        "K": 10
+    },
+    "task7.4": {
+        "feature_type": "ResNet18_olym",
+        "metric": "cosine",
+        "target_image": "pic.0016.jpg",
+        "K": 10
+    }
+}

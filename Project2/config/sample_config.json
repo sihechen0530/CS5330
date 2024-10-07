@@ -1,0 +1,46 @@
+{
+    "task1": {
+        // the file name (<feature_type>.csv) to save feature vector
+        "feature_type": "roi7x7",
+        // if the feature is already cached as file, feature_extractors will not be used
+        "feature_extractors": [
+            { // function name
+                "extractor": "roi",
+                // region to do the computation: 
+                // whole: whole picture
+                // upper / lower: horizontally split into two halves, upper and lower
+                // left / right: vertically split into two halves, left and right
+                // upper_left / upper_right / lower_left / lower_right: split into four quaters horizontally and vertically
+                "region": "whole",
+                "config": {
+                    // config for specific extractor
+                    "roi_size": 7,
+                }
+            },
+            // another extractor {}
+        ],
+        "metric": "SSD",
+        "target_image": "pic.1016.jpg",
+        "K": 4,
+    },
+    // another task "task2": {}
+}
+// roi: roi_size
+// rgHistogram: bin_size
+// rgbHistogram: bin_size
+/*
+  // task 1: baseline
+  std::vector<std::string> matches;
+  // vector_database.getTopKMatch(kMetricCalculators.at("SSD"), "roi",
+  //                              "pic.1016.jpg", 5, &matches);
+
+  // task 2: rg histogram matching
+  vector_database.getTopKMatch(kMetricCalculators.at("HistIntersection"),
+                               "rgHistogram", "pic.0164.jpg", 4, &matches);
+
+  // task 2.2: rgb histogram matching
+  vector_database.getTopKMatch(kMetricCalculators.at("HistIntersection"),
+                               "rgbHistogram", "pic.0164.jpg", 4, &matches);
+
+
+                               */

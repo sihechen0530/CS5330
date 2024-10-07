@@ -1,0 +1,32 @@
+{
+    "task5.1.1": {
+        "feature_type": "ResNet18_olym",
+        "metric": "SSD",
+        "target_image": "pic.0893.jpg",
+        "K": 4
+    },
+    "task5.1.2": {
+        "feature_type": "ResNet18_olym",
+        "metric": "cosine",
+        "target_image": "pic.0893.jpg",
+        "K": 4
+    },
+    "task5.2.2": {
+        "feature_type": "rgbHistogram8HorizontalSplit",
+        "metric": "HistIntersection",
+        "target_image": "pic.0893.jpg",
+        "K": 4
+    },
+    "task5.3.1": {
+        "feature_type": "ResNet18_olym",
+        "metric": "SSD",
+        "target_image": "pic.0164.jpg",
+        "K": 4
+    },
+    "task5.3.2": {
+        "feature_type": "rgbHistogram8HorizontalSplit",
+        "metric": "HistIntersection",
+        "target_image": "pic.0164.jpg",
+        "K": 4
+    }
+}

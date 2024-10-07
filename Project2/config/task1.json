@@ -1,0 +1,17 @@
+{
+    "task1": {
+        "feature_type": "roi7x7",
+        "feature_extractors": [
+            {
+                "extractor": "roi",
+                "region": "whole",
+                "config": {
+                    "roi_size": 7
+                }
+            }
+        ],
+        "metric": "SSD",
+        "target_image": "pic.1016.jpg",
+        "K": 5
+    }
+}

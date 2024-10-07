@@ -1,0 +1,48 @@
+{
+    "task2.1": {
+        "feature_type": "rgHistogram16",
+        "feature_extractors": [
+            {
+                "extractor": "rgHistogram",
+                "region": "whole",
+                "config": {
+                    "bin_size": 16
+                }
+            }
+        ],
+        "metric": "HistIntersection",
+        "target_image": "pic.0164.jpg",
+        "K": 4
+    },
+    "task2.2": {
+        "feature_type": "rgbHistogram8",
+        "feature_extractors": [
+            {
+                "extractor": "rgbHistogram",
+                "region": "whole",
+                "config": {
+                    "bin_size": 8
+                }
+            }
+        ],
+        "metric": "HistIntersection",
+        "target_image": "pic.0164.jpg",
+        "K": 4
+    },
+    "task2.3": {
+        "feature_type": "rgSoftHistogram8",
+        "feature_extractors": [
+            {
+                "extractor": "rgHistogram",
+                "region": "whole",
+                "config": {
+                    "bin_size": 8,
+                    "sigma": 1.0
+                }
+            }
+        ],
+        "metric": "HistIntersection",
+        "target_image": "pic.0164.jpg",
+        "K": 4
+    }
+}

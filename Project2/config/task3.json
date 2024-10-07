@@ -1,0 +1,46 @@
+{
+    "task3.1": {
+        "feature_type": "rgbHistogram8HorizontalSplit",
+        "feature_extractors": [
+            {
+                "extractor": "rgbHistogram",
+                "region": "upper",
+                "config": {
+                    "bin_size": 8
+                }
+            },
+            {
+                "extractor": "rgbHistogram",
+                "region": "lower",
+                "config": {
+                    "bin_size": 8
+                }
+            }
+        ],
+        "metric": "HistIntersection",
+        "target_image": "pic.0274.jpg",
+        "K": 4
+    },
+    "task3.2": {
+        "feature_type": "rgbHistogram8UpperLeftRightSplit",
+        "feature_extractors": [
+            {
+                "extractor": "rgbHistogram",
+                "region": "upper_left",
+                "config": {
+                    "bin_size": 8
+                }
+            },
+            {
+                "extractor": "rgbHistogram",
+                "region": "upper_right",
+                "config": {
+                    "bin_size": 8
+                }
+            }
+        ],
+        "metric": "HistIntersection",
+        "target_image": "pic.0274.jpg",
+        "K": 4
+    }
+}

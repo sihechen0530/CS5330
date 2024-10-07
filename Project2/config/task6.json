@@ -1,0 +1,82 @@
+{
+    "task6.1": {
+        "feature_type": "ResNet18_olym",
+        "metric": "cosine",
+        "target_image": "pic.1072.jpg",
+        "K": 4
+    },
+    "task6.2": {
+        "feature_type": "fourier_default",
+        "metric": "cosine",
+        "target_image": "pic.1072.jpg",
+        "K": 4
+    },
+    "task6.3": {
+        "feature_type": "fourier_rgHistogram",
+        "feature_extractors": [
+            {
+                "extractor": "rgHistogram",
+                "region": "whole",
+                "config": {
+                    "bin_size": 16
+                }
+            },
+            {
+                "extractor": "fourier",
+                "region": "whole",
+                "config": {
+                    "resize": 16
+                }
+            }
+        ],
+        "metric": "cosine",
+        "target_image": "pic.1072.jpg",
+        "K": 4
+    },
+    "task6.4": {
+        "feature_type": "Sobel_rgHistogram",
+        "feature_extractors": [
+            {
+                "extractor": "rgHistogram",
+                "region": "whole",
+                "config": {
+                    "bin_size": 16
+                }
+            },
+            {
+                "extractor": "sobelHistogram",
+                "region": "whole",
+                "config": {
+                    "bin_size": 16
+                }
+            }
+        ],
+        "metric": "cosine",
+        "target_image": "pic.1072.jpg",
+        "K": 4
+    },
+    "task6.5": {
+        "feature_type": "ResNet18_olym",
+        "metric": "cosine",
+        "target_image": "pic.0948.jpg",
+        "K": 4
+    },
+    "task6.6": {
+        "feature_type": "fourier_default",
+        "metric": "cosine",
+        "target_image": "pic.0948.jpg",
+        "K": 4
+    },
+    "task6.7": {
+        "feature_type": "fourier_rgHistogram",
+        "metric": "cosine",
+        "target_image": "pic.0948.jpg",
+        "K": 4
+    },
+    "task6.8": {
+        "feature_type": "Sobel_rgHistogram",
+        "metric": "cosine",
+        "target_image": "pic.0948.jpg",
+        "K": 4
+    }
+}
